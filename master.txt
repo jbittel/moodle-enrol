@@ -1,0 +1,22 @@
+# The first course number listed is the 'master'
+# course, so all successive course numbers are
+# translated into that one for the purposes of
+# enrollment.
+
+CO102000220093 CO102000120093
+
+CO323000120093 CO322000120093 CO321000120093
+
+BI202000120093 BI202000220093
+
+HU103LA0120093 HU103SPRS20093 HU103MNRS20093 HU103KRRS20093 HU103JPRS20093 HU103ITRS20093 HU103GERS20093 HU103FRRS20093 HU103BRRS20093
+
+IS413000120093 GE303000120093
+
+# Using a '*' in place of the term number
+# means the enrollment is applied to all
+# active terms.
+
+MINS CM1000001*
+GEP ED50000GE*
+MBA BA50000MB*
