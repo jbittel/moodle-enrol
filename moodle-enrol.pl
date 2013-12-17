@@ -336,8 +336,6 @@ sub connect_db {
         $db{'db'} = $1;
     }
 
-    execute_query($dbh, qq{ USE $db{'db'} } );
-
     return $dbh;
 }
 
