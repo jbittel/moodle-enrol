@@ -1,14 +1,14 @@
 The Situation
 =============
 
-We are currently running both Campus Anyware and Moodle, and needed to be able to synchronize course enrollments between the two systems. The registrar's office should be the authoritative source for course enrollments, and it is too error-prone and time consuming to have faculty manually enroll their students in each course.
+We are currently running both CampusAnyware and Moodle, and needed to be able to synchronize course enrollments between the two systems. The registrar's office should be the authoritative source for course enrollments, and it is too error-prone and time consuming to have faculty manually enroll their students in each course.
 
 Moodle Access
 =============
 
 Some of our course creation strategies really helped in finding a solution. Instead of reusing the same course shells every semester, we import a new Moodle course for each course instance in CA. This means that each course has both a short name and ID number of the course number and term, so it is unique within the system (e.g. IS202000120101). Our user authentication is handled through LDAP, and when we create a profile in Moodle, we insert the individual's ID number. These two pieces allow us to uniquely identify both a course and an individual within Moodle.
 
-Campus Anyware Access
+CampusAnyware Access
 =====================
 
 There is no external API access to CA, so we need to dig directly into the database to extract the current enrollment data.
@@ -33,10 +33,10 @@ We also had another need to handle within the process. A number of our faculty t
 The Glue
 ========
 
-We wrote a Perl script to tie these two systems together. While designed as a bridge between Campus Anyware and Moodle, it could easily be modified to pull from some other system. At a high level, the logic goes something like this:
+We wrote a Perl script to tie these two systems together. While designed as a bridge between CampusAnyware and Moodle, it could easily be modified to pull from some other system. At a high level, the logic goes something like this:
 
 1. Retrieve current Moodle enrollments
-2. Retrieve current Campus Anyware enrollments, while processing any course combinations
+2. Retrieve current CampusAnyware enrollments, while processing any course combinations
 3. If the enrollment is in CA but not Moodle, add it
 4. If the enrollment is not in CA but in Moodle, delete it
 5. Update an external enrollment database
@@ -62,9 +62,9 @@ my $TEACHER_ROLE = 'editingteacher';
 my $STUDENT_ROLE = 'student';
 
 # Configure database connection parameters...
-# ...for Converge enrollment DB
+# ...for Moodle enrollment DB
 my %DB_ENROL = (
-    'type' => 'mysql',
+    'type' => 'Pg',
     'db'   => 'enrol',
     'host' => 'localhost',
     'port' => '',
@@ -75,7 +75,7 @@ my %DB_ENROL = (
 # ...for CampusAnyware DB
 my %DB_CA = (
     'type' => 'Sybase',
-    'db'   => 'server=CampusAnyware',
+    'db'   => 'CampusAnyware',
     'host' => '',
     'port' => '',
     'user' => '',

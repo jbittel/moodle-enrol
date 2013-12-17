@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #
-# Copyright (c) 2011, Corban University <jbittel@corban.edu>. All rights reserved.
+# Copyright (c) 2013, Corban University <jbittel@corban.edu>. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
@@ -38,22 +38,21 @@ use Getopt::Long;
 use File::Basename;
 
 # Active terms to process for enrollments; existing
-# enrollments outside these terms are ignored.
-my @TERMS = qw/20093 20094 20101 20103/;
+# enrollments outside these terms are ignored
+my @TERMS = qw/20123 20124 20131 20133/;
 
 # Enrollments with these grades, although existing 
-# in the CA enrollment table, are ignored.
+# in the CA enrollment table, are treated as though
+# they are not there
 my @DROP_GRADES = qw/W/;
 
-# These need to match the corresponding roles within
-# your Moodle system.
 my $TEACHER_ROLE = 'editingteacher';
 my $STUDENT_ROLE = 'student';
 
 # Configure database connection parameters...
 # ...for Moodle enrollment DB
 my %DB_ENROL = (
-    'type' => 'mysql',
+    'type' => 'Pg',
     'db'   => 'enrol',
     'host' => 'localhost',
     'port' => '',
@@ -64,7 +63,7 @@ my %DB_ENROL = (
 # ...for CampusAnyware DB
 my %DB_CA = (
     'type' => 'Sybase',
-    'db'   => 'server=CampusAnyware',
+    'db'   => 'CampusAnyware',
     'host' => '',
     'port' => '',
     'user' => '',
@@ -341,9 +340,7 @@ sub connect_db {
 
 sub disconnect_db {
     my $dbh = shift;
-
     $dbh->disconnect;
-
     return;
 }
 
@@ -383,8 +380,7 @@ sub strip {
 sub within_active_terms {
     my $course = shift;
 
-    # If not a full course number, assume ok as
-    # there's no term to check against
+    # If not a full course number, assume ok
     if (length($course) < 14) {
         return 1;
     }
