@@ -273,8 +273,12 @@ sub update_enrol_db {
         $user =~ s/'/\\'/; # Handle teacher IDs with ' characters
 
         if ($action eq 'add') {
-            $sql = qq{ INSERT IGNORE INTO moodle (userid, course_number, role_name)
-                       VALUES ('$user', '$course', '$role')
+            $sql = qq{ INSERT INTO moodle (userid, course_number, role_name)
+                       SELECT '$user', '$course', '$role'
+                       WHERE NOT EXISTS (SELECT 1 FROM moodle
+                                         WHERE userid = '$user'
+                                         AND course_number = '$course'
+                                         AND role_name = '$role')
                      };
         } else {
             $sql = qq{ DELETE FROM moodle
