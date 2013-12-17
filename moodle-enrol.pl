@@ -312,9 +312,16 @@ sub connect_db {
     my %db = @_;
     my $dbh;
 
-    my $dsn = join ':', 'DBI', $db{'type'}, $db{'db'};
-    $dsn = $dsn . ":$db{'host'}" if $db{'host'};
-    $dsn = $dsn . ":$db{'port'}" if $db{'port'};
+    my $dsn = "DBI:$db{'type'}:";
+    if ($db{'type'} eq 'Pg') {
+        $dsn = $dsn . "dbname=$db{'db'}";
+    } elsif ($db{'type'} eq 'mysql') {
+        $dsn = $dsn . "database=$db{'db'}";
+    } elsif ($db{'type'} eq 'Sybase') {
+        $dsn = $dsn . "server=$db{'db'}";
+    }
+    $dsn = $dsn . ";host=$db{'host'}" if $db{'host'};
+    $dsn = $dsn . ";port=$db{'port'}" if $db{'port'};
 
     $dbh = DBI->connect($dsn, $db{'user'}, $db{'pass'}, { RaiseError => 1,
                                                           AutoCommit => 0,
