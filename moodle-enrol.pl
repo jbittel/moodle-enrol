@@ -35,7 +35,6 @@ use strict;
 use warnings;
 use DBI;
 use Getopt::Long;
-use File::Basename;
 
 # Active terms to process for enrollments; existing
 # enrollments outside these terms are ignored
@@ -70,23 +69,24 @@ my %DB_CA = (
     'pass' => '',
 );
 
-my $ENROL_FLATFILE = dirname($0) . "/enrol.txt";
-my $MASTER_FILE = dirname($0) . "/master.txt";
-
 my $TERMS = join ', ', map { qq/'$_'/ } @TERMS;
 my $DROP_GRADES = join ', ', map { qq/'$_'/ } @DROP_GRADES;
 
 # Command line options
+my $dry_run = '';
 my $dump_ca = '';
 my $dump_enrol = '';
-my $dry_run = '';
+my $flatfile = '';
+my $master_file = '';
 
 my @curr_ca = ();
 my @curr_enrol = ();
 
 GetOptions("dry-run" => \$dry_run,
+           "dump-ca" => \$dump_ca,
            "dump-enrol" => \$dump_enrol,
-           "dump-ca" => \$dump_ca);
+           "flatfile=s" => \$flatfile,
+           "master=s" => \$master_file);
 
 if ($dump_enrol) {
     get_moodle_enrollments(\@curr_enrol);
@@ -140,7 +140,7 @@ sub get_ca_enrollments {
     my %master;
 
     # Build lookup table for course combination requests
-    get_course_masters(\%master);
+    get_course_masters(\%master) if ($master_file);
 
     my $dbh = connect_db(%DB_CA);
 
@@ -196,9 +196,9 @@ sub get_course_masters {
     my $course;
     my $term;
 
-    return if (!-e $MASTER_FILE);
+    return if (!-e "$master_file");
 
-    open MASTER, '<', "$MASTER_FILE" or die "Cannot open file: $!";
+    open MASTER, '<', "$master_file" or die "Cannot open file: $!";
     while ($line = <MASTER>) {
         $line = strip($line);
         next if $line =~ /^$/;
@@ -254,7 +254,7 @@ sub process_enrollments {
         print_array(\@diff);
     } else {
         update_enrol_db(\@diff);
-        put_enrol_flatfile(\@diff);
+        put_enrol_flatfile(\@diff) if ($flatfile);
     }
 
     return;
@@ -302,11 +302,11 @@ sub put_enrol_flatfile {
 
     return if (scalar @$diff == 0);
 
-    open ENROL, '>>', "$ENROL_FLATFILE" or die "Cannot open file: $!";
+    open FLATFILE, '>>', "$flatfile" or die "Cannot open file: $!";
     foreach (@$diff) {
-        print ENROL "$_\n";
+        print FLATFILE "$_\n";
     }
-    close ENROL;
+    close FLATFILE;
 
     return;
 }
