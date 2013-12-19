@@ -89,7 +89,7 @@ GetOptions("dry-run" => \$dry_run,
            "master=s" => \$master_file);
 
 if ($dump_enrol) {
-    get_moodle_enrollments(\@curr_enrol);
+    get_enrollments(\@curr_enrol);
     print_array(\@curr_enrol);
     exit;
 }
@@ -100,12 +100,12 @@ if ($dump_ca) {
     exit;
 }
 
-get_moodle_enrollments(\@curr_enrol);
+get_enrollments(\@curr_enrol);
 get_ca_enrollments(\@curr_ca);
 
 process_enrollments(\@curr_ca, \@curr_enrol);
 
-sub get_moodle_enrollments {
+sub get_enrollments {
     my $curr_enrol = shift;
     my $sql;
     my $sth;
@@ -114,7 +114,7 @@ sub get_moodle_enrollments {
     my $dbh = connect_db(%DB_ENROL);
 
     $sql = qq{ SELECT role_name, userid, course_number
-               FROM moodle
+               FROM enrollment
                WHERE RIGHT(course_number, 5) IN ($TERMS)
              };
 
@@ -253,14 +253,14 @@ sub process_enrollments {
     if ($dry_run) {
         print_array(\@diff);
     } else {
-        update_enrol_db(\@diff);
-        put_enrol_flatfile(\@diff) if ($flatfile);
+        update_enrollments(\@diff);
+        write_flatfile(\@diff) if ($flatfile);
     }
 
     return;
 }
 
-sub update_enrol_db {
+sub update_enrollments {
     my $diff = shift;
     my $dbh;
     my $sql;
@@ -272,15 +272,15 @@ sub update_enrol_db {
         $user =~ s/'/\\'/; # Handle teacher IDs with ' characters
 
         if ($action eq 'add') {
-            $sql = qq{ INSERT INTO moodle (userid, course_number, role_name)
+            $sql = qq{ INSERT INTO enrollment (userid, course_number, role_name)
                        SELECT '$user', '$course', '$role'
-                       WHERE NOT EXISTS (SELECT 1 FROM moodle
+                       WHERE NOT EXISTS (SELECT 1 FROM enrollment
                                          WHERE userid = '$user'
                                          AND course_number = '$course'
                                          AND role_name = '$role')
                      };
         } else {
-            $sql = qq{ DELETE FROM moodle
+            $sql = qq{ DELETE FROM enrollment
                        WHERE userid = '$user'
                        AND course_number = '$course'
                        AND role_name = '$role'
@@ -297,7 +297,7 @@ sub update_enrol_db {
     return;
 }
 
-sub put_enrol_flatfile {
+sub write_flatfile {
     my $diff = shift;
 
     return if (scalar @$diff == 0);
