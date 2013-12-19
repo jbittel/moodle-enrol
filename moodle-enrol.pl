@@ -113,6 +113,14 @@ sub get_enrollments {
 
     my $dbh = connect_db(%DB_ENROL);
 
+    unless ($dry_run) {
+        $sql = qq{ DELETE FROM enrollment
+                   WHERE RIGHT(course_number, 5) NOT IN ($TERMS)
+                 };
+
+        $sth = execute_query($dbh, $sql);
+    }
+
     $sql = qq{ SELECT role_name, userid, course_number
                FROM enrollment
                WHERE RIGHT(course_number, 5) IN ($TERMS)
