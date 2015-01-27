@@ -298,7 +298,7 @@ sub update_enrollments {
         execute_query($dbh, $sql);
     }
 
-    $dbh->commit or die "Error committing data: " . DBI->errstr;
+    $dbh->commit or die "Error committing data: " . $dbh->errstr;
 
     disconnect_db($dbh);
 
@@ -357,8 +357,8 @@ sub execute_query {
     my $sql = shift;
     my $sth;
 
-    $sth = $dbh->prepare($sql) or die "Error preparing query: " . DBI->errstr;
-    $sth->execute() or die "Error executing query: " . DBI->errstr;
+    $sth = $dbh->prepare($sql) or die "Error preparing query: " . $dbh->errstr;
+    $sth->execute() or die "Error executing query: " . $dbh->errstr;
 
     return $sth;
 }
