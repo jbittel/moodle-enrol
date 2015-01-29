@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 #
-# Copyright (c) 2013, Corban University <jbittel@corban.edu>. All rights reserved.
+# Copyright (c) 2015, Corban University <jbittel@corban.edu>. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are
